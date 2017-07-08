@@ -5,7 +5,6 @@ var mongoose = require('mongoose');
 var bparse = require('body-parser');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-var passportLocalMongoose = require('passport-local-mongoose');
 
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -23,21 +22,12 @@ app.use(bparse.json());
 app.use(express.static(__dirname + '/public'));
 
 // MongoDB Database init
-mongoose.connect('mongodb://127.0.0.1:27017/chat-app');
+mongoose.connect('mongodb://127.0.0.1:27017/chat-app',{useMongoClient: true});
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
     console.log('LOGGED | MongoDB Connected - ' + new Date());
 });
-
-// User Collection
-var UserSchema = mongoose.Schema({
-    username: String,
-    password: String
-});
-var User = mongoose.model('user', UserSchema);
-
-User.plugin(passportLocalMongoose);
 
 // Message Collection
 var MessageSchema = mongoose.Schema({
@@ -46,27 +36,42 @@ var MessageSchema = mongoose.Schema({
 var Msg = mongoose.model('msg', MessageSchema);
 
 // passport config
-passport.use(new LocalStrategy(User.authenticate()));
+app.use(passport.initialize());
+app.use(passport.session());
+var User = require('./models/user');
+passport.use(User.createStrategy());
+
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 app.get('/', function(req, res){
-  res.render('home');
+  res.render('register');
 });
 
-app.post('/',function(req,res) {
-	if(req.body.flag==1){
-		User.register(new User({ username : req.body.username }), req.body.password, function(err, account) {
-	        if (err) {
-	            return res.render('register', { account : account });
-	        }
+app.post('/register',function(req,res) {
+	User.register(new User({ username : req.body.username }), req.body.password, (err, account) => {
+        if (err) {
+          return res.render('register', { error : err.message });
+        }
 
-	        passport.authenticate('local')(req, res, function () {
-	            res.redirect('/chat');
-	        });
-	    });
-	}
-})
+        passport.authenticate('local')(req, res, () => {
+	        if (err) {
+	            return next(err);
+	        }
+	        res.redirect('/chat');
+        });
+    });
+});
+
+app.get('/login', function(req, res) {
+	console.log(req.user);
+  res.render('login', {user: req.user});
+});
+
+app.post('/login', passport.authenticate('local'), function(req, res) {
+	console.log(req.user);
+    res.redirect('/chat');
+});
 
 io.on('connection', function(socket){
 	console.log('connected');

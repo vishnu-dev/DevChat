@@ -1,0 +1,77 @@
+<link rel="stylesheet" type="text/css" href="css/home.css">
+{{err}}
+<div style="text-align:center">
+<span1>Don't have an account?</span1>
+<a href="/" style="text-decoration: none !important;"><span2>Signup</span2></a>
+</div>
+
+<div class="back"></div>
+<div class="registration-form">
+  <header>
+    <span>Login</span> 
+    <p>Welcome back</p>
+  </header>
+  <form method="post" action="/login">
+    <div class="input-section username-section">
+      <input class="username fontsz" type="text" autocomplete="off" placeholder="ENTER USERNAME" autocomplete="off"/>
+      <div class="animated-button"><span class="icon-paper-plane"><i class="fa fa-user-o"></i></span><span class="next-button username"><i class="fa fa-arrow-up"></i></span></div>
+    </div>
+    <div class="input-section password-section folded">
+      <input class="password fontsz" type="password" placeholder="ENTER YOUR PASSWORD HERE"/>
+      <div class="animated-button"><span class="icon-lock"><i class="fa fa-lock"></i></span><span class="next-button password"><i class="fa fa-arrow-up"></i></span></div>
+    </div>
+    <div class="success"> 
+      <button style="border:none;" type="submit"><p>CHAT!</p></button>
+    </div>
+  </form>
+</div>
+
+<script type="text/javascript">
+$('.username').on("change keyup paste",
+  function(){
+    if($(this).val()){
+      $('.icon-paper-plane').addClass("next");
+    } else {
+      $('.icon-paper-plane').removeClass("next");
+    }
+  }
+);
+
+$('.next-button').hover(
+  function(){
+    $(this).css('cursor', 'pointer');
+  }
+);
+
+$('.next-button.username').click(
+  function(){
+    console.log("Something");
+    $('.username-section').addClass("fold-up");
+    $('.password-section').removeClass("folded");
+  }
+);
+
+$('.password').on("change keyup paste",
+  function(){
+    if($(this).val()){
+      $('.icon-lock').addClass("next");
+    } else {
+      $('.icon-lock').removeClass("next");
+    }
+  }
+);
+
+$('.next-button').hover(
+  function(){
+    $(this).css('cursor', 'pointer');
+  }
+);
+
+$('.next-button.password').click(
+  function(){
+    console.log("Something");
+    $('.password-section').addClass("fold-up");
+    $('.success').css("marginTop", 0);
+  }
+);
+</script>
