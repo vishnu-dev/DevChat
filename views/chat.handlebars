@@ -1,0 +1,140 @@
+  <div class="container clearfix">
+    <div class="people-list" id="people-list">
+      <div class="search">
+        <input type="text" placeholder="search" />
+        <i class="fa fa-search"></i>
+      </div>
+      <ul class="list">
+        <li class="clearfix">
+          <img src="images/vd1.png" alt="avatar" />
+          <div class="about">
+            <div class="name">Vishnudev</div>
+            <div class="status">
+              <i class="fa fa-circle online"></i> online
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="chat">
+      <div class="chat-header clearfix">
+        <img src="images/vd1.png" alt="avatar" />
+        
+        <div class="chat-about">
+          <div class="chat-with">Chat with Vishnudev</div>
+          <span>Already <span class="chat-num-messages"></span> messages</span>
+        </div>
+        <i class="fa fa-star"></i>
+      </div> <!-- end chat-header -->
+      
+      <div class="chat-history">
+        <ul id="messagelist">
+          <li class="clearfix" id="messageitem">
+            <div class="message-data align-right">
+              <span class="message-data-time" ></span> &nbsp; &nbsp;
+              <span class="message-data-name" >Vishnudev</span> <i class="fa fa-circle me"></i>
+            </div>
+            <div class="message other-message float-right"></div>
+          </li> 
+          {{#each messages}}
+          <li class="clearfix" id="messageitem">
+            <div class="message-data align-right">
+              <span class="message-data-time" >{{this.msg.time}}</span> &nbsp; &nbsp;
+              <span class="message-data-name" >Olia</span> <i class="fa fa-circle me"></i>
+            </div>
+            <div class="message other-message float-right">
+              {{this.msg.msg}}
+            </div>
+          </li> 
+          {{/each}}       
+        </ul>
+        <ul>
+          <li>
+            <div class="message-data">
+              <span class="message-data-name"><i class="fa fa-circle online"></i> Vishnudev</span>
+              <span class="message-data-time">10:31 AM, Today</span>
+            </div>
+            <div id="typing_anim" style="display:none">
+              <i class="fa fa-circle online"></i>
+              <i class="fa fa-circle online" style="color: #AED2A6"></i>
+              <i class="fa fa-circle online" style="color:#DAE9DA"></i> <span>Typing....</span>
+            </div>
+          </li>
+        </ul>
+        
+      </div> <!-- end chat-history -->
+      <div class="chat-message clearfix">
+      <form action="">
+        <textarea name="message-to-send" class="typing-message" id="m" name="msg" placeholder ="Type your message" rows="3" required="true"></textarea>
+                
+        <i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;
+        <i class="fa fa-file-image-o"></i>
+        
+        <button id="mybtn">Send</button>
+      </form>
+      </div> <!-- end chat-message -->
+      
+    </div> <!-- end chat -->
+    
+  </div> <!-- end container -->
+
+<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+    var socket = io();
+  $(function () {
+    $('form').submit(function(){ 
+      var d = new Date();
+      d = d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true});
+      socket.emit('chat message', {msg:$('#m').val(),time:d});
+      $('#m').val('');
+      var num = document.getElementsByClassName("chat-num-messages")[0];
+      var oldnum = num.innerHTML;
+      var newnum = parseInt(oldnum)+1;
+      num.innerHTML=newnum;
+      return false;
+    });
+    socket.on('new message', function(msg){
+      var itm = document.getElementById('messageitem');
+      var cln = itm.cloneNode(true);
+      var list = document.getElementById('messagelist');
+      list.appendChild(cln);
+      var message = document.getElementsByClassName('other-message');
+      message[message.length-1].innerHTML=msg;
+      var time = document.getElementsByClassName('message-data-time');
+      var d = new Date();
+      d = d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true});
+      time[time.length-2].innerHTML=d;
+      $('.chat-history').animate({scrollTop: $('.chat-history')[0].scrollHeight});
+    });
+  });
+  var timeout;
+
+  function timeoutFunction() {
+      typing = false;
+      socket.emit("typing", false);
+  }
+
+  $('.typing-message').keyup(function() {
+      typing = true;
+      socket.emit('typing', 'typing...');
+      clearTimeout(timeout);
+      timeout = setTimeout(timeoutFunction, 2000);
+  });
+
+  socket.on('typing', function(data) {
+    var typing_anim = document.getElementById('typing_anim');
+      if (data) {
+          typing_anim.style.display="block";
+      } else {
+          typing_anim.style.display="none";
+      }
+  });
+  $('.chat-history').animate({scrollTop: $('.chat-history')[0].scrollHeight});
+  var i=0;
+  {{#each messages}}
+  i++;
+  {{/each}}
+  document.getElementsByClassName('chat-num-messages')[0].innerHTML=i;
+</script>
