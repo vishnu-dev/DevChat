@@ -1,10 +1,12 @@
 var express = require('express');
 var app = express();
 var exphbs  = require('express-handlebars');
+var session = require('express-session');
 var mongoose = require('mongoose');
 var bparse = require('body-parser');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var User = require('./models/user');
 
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -36,45 +38,101 @@ var MessageSchema = mongoose.Schema({
 var Msg = mongoose.model('msg', MessageSchema);
 
 // passport config
+app.use(session({ secret: 'anything' }));
 app.use(passport.initialize());
 app.use(passport.session());
-var User = require('./models/user');
-passport.use(User.createStrategy());
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+   User.getUserByUsername(username, function(err, user){
+   	if(err) throw err;
+   	if(!user){
+   		return done(null, false, {message: 'Unknown User'});
+   	}
+
+   	User.comparePassword(password, user.password, function(err, isMatch){
+   		if(err) throw err;
+   		if(isMatch){
+   			return done(null, user);
+   		} else {
+   			return done(null, false, {message: 'Invalid password'});
+   		}
+   	});
+   });
+  }));
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.getUserById(id, function(err, user) {
+    done(err, user);
+  });
+});
 
 app.get('/', function(req, res){
   res.render('register');
 });
 
 app.post('/register',function(req,res) {
-	User.register(new User({ username : req.body.username }), req.body.password, (err, account) => {
-        if (err) {
-          return res.render('register', { error : err.message });
-        }
-
-        passport.authenticate('local')(req, res, () => {
-	        if (err) {
-	            return next(err);
-	        }
-	        res.redirect('/chat');
-        });
+	var username = req.body.username;
+	var password = req.body.password;
+	var color = '#' + parseInt(Math.random() * 0xffffff).toString(16);
+	var newUser = new User({
+		username: username,
+		password: password,
+		color:color
+	});
+	User.createUser(newUser, function(err, user){
+		if(err) throw err;
+		console.log(user);
+	});
+	passport.authenticate('local')(req, res, function () {
+        res.redirect('/chat');
     });
 });
 
 app.get('/login', function(req, res) {
-	console.log(req.user);
   res.render('login', {user: req.user});
 });
 
-app.post('/login', passport.authenticate('local'), function(req, res) {
-	console.log(req.user);
-    res.redirect('/chat');
+app.post('/login',
+passport.authenticate('local', {successRedirect:'/chat'}),
+function(req, res) {
+    req.session.user = req.user;
+	res.redirect('/chat');
 });
 
+var users = [],x=0;
 io.on('connection', function(socket){
-	console.log('connected');
+	socket.on('login', function(data){
+	    console.log('a user ' + data.userId + ' connected');
+	    var found = false;
+	    for(var i = 0; i < users.length; i++) {
+		    if (users[i].username == data.userId) {
+		        found = true;
+		        break;
+		    }
+		}
+	    if(data.userId){
+	    	console.log(socket.id);
+	    	if(!found)
+				users.push({socket:socket.id,username:data.userId});
+			else{
+				for(var i = 0; i < users.length; i++) {
+				    if (users[i].username == data.userId) {
+				        users[i].socket = socket.id;
+				    }
+				}
+	    	}
+			io.emit('online users', users);
+		}
+	});
+	socket.on('disconnect', function(){
+		console.log('user ' + users[socket.id] + ' disconnected');
+		io.emit('user disconnected',socket.id)
+	});
 	socket.on('typing', function (data) {
 	  console.log(data);
 	  socket.broadcast.emit('typing', data);
@@ -87,15 +145,29 @@ io.on('connection', function(socket){
 			});
 			message.save();
 		})
-	io.emit('new message', msg.msg);
+	io.emit('new message', msg);
 	});
 });
 
-app.get('/chat',function(req,res) {
+app.get('/chat', redirectToChatIfLoggedIn,function(req,res) {
 	Msg.find({},function(err,document) {
-		res.render('chat',{messages:document});
+		res.render('chat',{messages:document,user:req.user});
 	})
 });
+
+app.get('/logout',redirectToChatIfLoggedIn, function(req, res){
+	req.session.destroy(function (err) {
+		res.redirect('/login');  	
+	});
+});
+
+function redirectToChatIfLoggedIn(req, res, next) {
+	if (!req.isAuthenticated()){
+		return res.render('login');
+	}
+	return next();
+}
+
 
 http.listen(port, function(){
   console.log('listening on *:' + port);

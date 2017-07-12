@@ -10,6 +10,22 @@ body {
   color: white;
 }
 
+.exit-btn { 
+  box-shadow: rgb(35, 57, 94) 0px 0px 15px 3px inset;
+  background: linear-gradient(rgb(46, 70, 110) 5%, rgb(65, 89, 137) 100%) rgb(46, 70, 110);
+  border-radius: 17px;
+  border: 1px solid rgb(31, 47, 71);
+  display: inline-block;
+  cursor: pointer;
+  color: rgb(255, 255, 255);
+  font-family: Arial;
+  font-size: 15px;
+  padding: 6px 13px;
+  text-decoration: none;
+  text-shadow: rgb(38, 54, 102) 0px 1px 0px;
+  margin-right: 0;
+}
+
 .container {
   margin: 0 auto;
   width: 750px;
@@ -112,6 +128,7 @@ body {
   border-radius: 7px;
   margin-bottom: 30px;
   width: 90%;
+  word-wrap: break-word;
   position: relative;
 }
 .chat .chat-history .message:after {
@@ -134,7 +151,7 @@ body {
   background: #94C2ED;
 }
 .chat .chat-history .other-message:after {
-  border-bottom-color: #94C2ED;
+  border-bottom-color: inherit;
   left: 93%;
 }
 .chat .chat-message {
@@ -179,10 +196,6 @@ body {
 
 .offline {
   color: #E38968;
-}
-
-.me {
-  color: #94C2ED;
 }
 
 .align-left {
