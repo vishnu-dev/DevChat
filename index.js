@@ -72,6 +72,10 @@ passport.deserializeUser(function(id, done) {
 });
 
 app.get('/', function(req, res){
+  res.redirect('register');
+});
+
+app.get('/register', function(req, res){
   res.render('register');
 });
 
@@ -88,9 +92,7 @@ app.post('/register',function(req,res) {
 		if(err) throw err;
 		console.log(user);
 	});
-	passport.authenticate('local')(req, res, function () {
-        res.redirect('/chat');
-    });
+        res.redirect('/login');
 });
 
 app.get('/login', function(req, res) {
@@ -116,7 +118,6 @@ io.on('connection', function(socket){
 		    }
 		}
 	    if(data.userId){
-	    	console.log(socket.id);
 	    	if(!found)
 				users.push({socket:socket.id,username:data.userId});
 			else{
@@ -126,19 +127,18 @@ io.on('connection', function(socket){
 				    }
 				}
 	    	}
-			io.emit('online users', users);
+			
 		}
+		io.emit('online users', users);
 	});
 	socket.on('disconnect', function(){
 		console.log('user ' + users[socket.id] + ' disconnected');
 		io.emit('user disconnected',socket.id)
 	});
 	socket.on('typing', function (data) {
-	  console.log(data);
 	  socket.broadcast.emit('typing', data);
 	});
 	socket.on('chat message', function(msg){
-		console.log(msg);
 		Msg.find({},function(err,document) {
 			var message = new Msg({
 				msg:msg

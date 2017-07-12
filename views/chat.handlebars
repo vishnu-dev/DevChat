@@ -1,12 +1,11 @@
-  <ul id="users-online">
-  </ul>
+
   <div class="container clearfix">
     <div class="people-list" id="people-list">
       <div class="search">
         <input type="text" placeholder="search" />
         <i class="fa fa-search"></i>
       </div>
-      <ul class="list">
+      <ul class="list" id="users-online">
         <li class="clearfix">
           <img src="images/vd1.png" alt="avatar" />
           <div class="about">
@@ -14,6 +13,7 @@
             <div class="status">
               <i class="fa fa-circle online"></i> online
             </div>
+            <h4>Online Users</h4>
           </div>
         </li>
       </ul>
@@ -113,23 +113,39 @@ $(function () {
     var arrow = document.getElementsByClassName('my');
     arrow[arrow.length-1].style.color=msg.color;
     var time = document.getElementsByClassName('message-data-time');
-    time[time.length-2].innerHTML=msg.time;
+    time[time.length-1].innerHTML=msg.time;
     var username = document.getElementsByClassName('message-data-name');
-    username[username.length-2].innerHTML=msg.username;
+    username[username.length-1].innerHTML=msg.username;
     $('.chat-history').animate({scrollTop: $('.chat-history')[0].scrollHeight});
   });
+
   socket.on('online users', function (users) {
     var ul = document.getElementById("users-online");
-    console.log(users);
     for (var i = 0; i < users.length; i++) {
-      var li = document.createElement("li");  
-      li.setAttribute("id",users[i].socket);    
-      li.appendChild(document.createTextNode(users[i].username));
-      ul.appendChild(li);    
+        var li = document.createElement("li");  
+        li.setAttribute("id",users[i].socket);    
+        li.setAttribute("class","users");
+        li.appendChild(document.createTextNode(users[i].username));
+        ul.appendChild(li);  
     }
+    var seen = {};
+    $('#users-online li').each(function() {
+        var txt = $(this).text();
+        if (seen[txt])
+            $(this).remove();
+        else
+            seen[txt] = true;
+        //return false;
+    }
+    );
   });
+
   socket.on('user disconnected',function(user) {
     console.log(user);
+    function removeElement(element) {
+        element && element.parentNode && element.parentNode.removeChild(element);
+    }
+    removeElement( document.getElementById(user) );
   });
 });
 var timeout;
