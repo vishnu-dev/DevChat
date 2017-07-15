@@ -1,6 +1,8 @@
 {
   "name": "V-Chat",
   "version": "0.0.1",
+  "engines" : { "node" : "8.1.4" },
+
   "description": "my first socket.io app",
   "dependencies": {
     "bcryptjs": "^2.4.3",
