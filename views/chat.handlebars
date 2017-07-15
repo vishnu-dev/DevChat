@@ -51,6 +51,9 @@
           </li> 
           {{/each}}       
         </ul>
+        <a target="_blank" id="img_href">
+          <img class="img-chat" id="up_image">
+        </a>
         <ul>
           <li>
 {{!--             <div class="message-data">
@@ -70,8 +73,11 @@
       <form action="">
         <textarea name="message-to-send" maxlength="1024" class="typing-message" id="m" name="msg" placeholder ="Type your message" rows="3" required="true"></textarea>
         <input type="hidden" name="username">
-        <i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;
-        <i class="fa fa-file-image-o"></i>
+{{!--         <i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;--}}
+        <i class="fa fa-file-image-o"></i>{{!-- <input type="file" id="siofu_input"/> --}}
+        <div id="file_drop" dropzone="copy" title="drop files for upload">drop file here</div>
+
+
         
         <button id="mybtn">Send</button>
       </form>
@@ -82,6 +88,7 @@
   </div> <!-- end container -->
 
 <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<script src="/siofu/client.js"></script>
 
 <script>
 var socket = io();
@@ -178,24 +185,12 @@ var i=0;
 i++;
 {{/each}}
 document.getElementsByClassName('chat-num-messages')[0].innerHTML=i;
-
-// setInterval(function() {
-//   var liText = '', liList = $('#users-online li'), listForRemove = [];
-//   var ids = {};
-
-//   //go over each element
-//   var children = $elem.children();
-//   for ( var i = 0, len = children.length; i < len; i++ ) {
-//       var id = children[ i ].id;
-
-//       //was this id previously seen?
-//       if ( ids.hasOwnProperty(id) ) {
-//           $( children[i] ).remove();
-//       }
-//       //a brand new id was discovered!
-//       else {
-//           ids[ id ] = true;
-//       }
-//   }
-// }, 1000);
+var uploader = new SocketIOFileUpload(socket);
+console.log(uploader);
+//uploader.listenOnInput(document.getElementById("siofu_input"));
+uploader.listenOnDrop(document.getElementById("file_drop"));
+socket.on('uploaded', function(name) {
+  document.getElementById('up_image').src=name;
+  document.getElementById('img_href').href=name;
+})
 </script>

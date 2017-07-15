@@ -4,9 +4,11 @@ var exphbs  = require('express-handlebars');
 var session = require('express-session');
 var mongoose = require('mongoose');
 var bparse = require('body-parser');
+var fs = require('fs');	
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var User = require('./models/user');
+var siofu = require("socketio-file-upload");
 
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -22,6 +24,7 @@ app.use(bparse.json());
 
 // Static files
 app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/uploads'));
 
 // MongoDB Database init
 mongoose.connect('mongodb://139.59.74.8:27017/chat-app',{useMongoClient: true});
@@ -41,6 +44,9 @@ var Msg = mongoose.model('msg', MessageSchema);
 app.use(session({ secret: 'anything' }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+// File uploader init
+app.use(siofu.router);
 
 passport.use(new LocalStrategy(
   function(username, password, done) {
@@ -147,6 +153,26 @@ io.on('connection', function(socket){
 		})
 	io.emit('new message', msg);
 	});
+	var uploader = new siofu();
+    uploader.dir = __dirname + "/uploads";
+    uploader.listen(socket);
+
+    uploader.on("start", function(event){
+		if (/\.exe$/.test(event.file.name)) {
+			console.log("Aborting: " + event.file.id);
+			uploader.abort(event.file.id, socket);
+		}
+	});
+
+    // Do something when a file is saved:
+    uploader.on("saved", function(event){
+        io.emit('uploaded',event.file.name);
+    });
+
+    // Error handler:
+    uploader.on("error", function(event){
+        console.log("Error from uploader", event);
+    });
 });
 
 app.get('/chat', redirectToChatIfLoggedIn,function(req,res) {

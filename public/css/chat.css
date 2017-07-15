@@ -224,3 +224,15 @@ ul
 {
   list-style-type: none;
 }
+/*
+input[type="file"] {
+  position: absolute;
+  opacity: 0;
+  width: 10px;
+}*/
+.img-chat {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+  width: 150px;
+}
