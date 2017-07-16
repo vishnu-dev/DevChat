@@ -181,7 +181,7 @@ app.get('/chat', redirectToChatIfLoggedIn,function(req,res) {
 	})
 });
 
-app.get('/logout',redirectToChatIfLoggedIn, function(req, res){
+app.get('/logout', function(req, res){
 	req.session.destroy(function (err) {
 		res.redirect('/login');  	
 	});

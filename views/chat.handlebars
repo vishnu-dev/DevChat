@@ -46,9 +46,11 @@
           </li> 
           {{/each}}       
         </ul>
-        <a target="_blank" id="img_href">
+        <span><a target="_blank" id="img_href">
           <img class="img-chat" id="up_image">
-        </a>
+        </a></span>
+        <span style="float:right"><a href="/logout" class="btn-floating btn-small waves-effect waves-light red"><i class="fa fa-sign-out" aria-hidden="true"></i>
+      </a></span>
         <ul>
           <li>
   {{!--             <div class="message-data">
@@ -71,6 +73,7 @@
         <i class="fa fa-file-image-o"></i>{{!-- <input type="file" id="siofu_input"/> --}}
         <div id="file_drop" dropzone="copy" title="drop files for upload">drop file here</div>
       </form>
+      
       </div> <!-- end chat-message -->
       
     </div> <!-- end chat -->
