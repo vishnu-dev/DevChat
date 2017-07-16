@@ -3,13 +3,6 @@
   box-sizing: border-box;
 }
 
-body {
-  background: #C5DDEB;
-  font: 14px/20px "Lato", Arial, sans-serif;
-  padding: 40px 0;
-  color: white;
-}
-
 .exit-btn { 
   box-shadow: rgb(35, 57, 94) 0px 0px 15px 3px inset;
   background: linear-gradient(rgb(46, 70, 110) 5%, rgb(65, 89, 137) 100%) rgb(46, 70, 110);
@@ -28,7 +21,7 @@ body {
 
 .container {
   margin: 0 auto;
-  width: 750px;
+  width: 500px;
   background: #444753;
   border-radius: 5px;
 }
@@ -75,7 +68,7 @@ body {
 }
 
 .chat {
-  width: 490px;
+  width: 100%;
   float: left;
   background: #F2F5F8;
   border-top-right-radius: 5px;
@@ -111,7 +104,7 @@ body {
   padding: 30px 30px 20px;
   border-bottom: 2px solid white;
   overflow-y: scroll;
-  height: 250px;
+  height: 500px;
 }
 .chat .chat-history .message-data {
   margin-bottom: 15px;
@@ -121,30 +114,19 @@ body {
   padding-left: 6px;
 }
 .chat .chat-history .message {
-   color: white;
+  color: white;
   text-shadow: 1px 1px 2px black, 0 0 25px blue, 0 0 5px darkblue;
   padding: 18px 20px;
   line-height: 26px;
   font-size: 16px;
   border-radius: 7px;
   margin-bottom: 30px;
-  width: 90%;
+  width: 60%;
+  background-blend-mode: lighten;
   word-wrap: break-word;
   position: relative;
 }
-.chat .chat-history .message:after {
-  bottom: 100%;
-  left: 7%;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  pointer-events: none;
-  border-bottom-color: #86BB71;
-  border-width: 10px;
-  margin-left: -10px;
-}
+
 .chat .chat-history .my-message {
   background: #86BB71;
 }
@@ -209,6 +191,10 @@ body {
 
 .float-right {
   float: right;
+}
+
+.float-left {
+  float: left;
 }
 
 .clearfix:after {

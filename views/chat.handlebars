@@ -1,26 +1,27 @@
+<link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>    
 
-  <div class="container clearfix">
-    <div class="people-list" id="people-list">
-      <div class="search">
-        <input type="text" placeholder="search" />
-        <i class="fa fa-search"></i>
-      </div>
-      <ul class="list" id="users-online">
-        <li class="clearfix">
-          <img src="images/vd1.png" alt="avatar" />
-          <div class="about">
-            <div class="name">{{user.username}}</div>
-            <div class="status">
-              <i class="fa fa-circle online"></i> online
-            </div>
-            <h4>Online Users</h4>
-          </div>
-        </li>
-      </ul>
+<div id="preloader" class="preloader-wrapper big active">
+  <div class="spinner-layer spinner-blue-only">
+    <div class="circle-clipper left">
+      <div class="circle"></div>
+    </div><div class="gap-patch">
+      <div class="circle"></div>
+    </div><div class="circle-clipper right">
+      <div class="circle"></div>
     </div>
-    
+  </div>
+</div>
+
+<div class="row">
+  <div class="col s12">
+    <ul class="tabs">
+      <li class="tab col s6"><a class="active" href="#tab1">Chat</a></li>
+      <li class="tab col s6"><a href="#tab2">Online Users</a></li>
+    </ul>
+  </div>
+  <div id="tab1" class="col s12">
     <div class="chat">
-      <div class="chat-header clearfix">
+      {{!-- <div class="chat-header clearfix">
         <img src="images/vd1.png" alt="avatar" />
         
         <div class="chat-about">
@@ -28,24 +29,24 @@
           <span>Already <span class="chat-num-messages"></span> messages</span>
         </div>
         <a href="/logout"><button class="exit-btn">Logout</button></a>
-      </div> <!-- end chat-header -->
+      </div> --}}
       
       <div class="chat-history">
         <ul id="messagelist">
-          <li class="clearfix" id="messageitem">
-            <div class="message-data align-right">
+          <li class="clearfix messageitem">
+            <div class="message-data align-left">
               <span class="message-data-time" ></span> &nbsp; &nbsp;
               <span class="message-data-name" >Vishnudev</span> <i class="fa fa-circle my"></i>
             </div>
-            <div class="message other-message float-right">Hi</div>
+            <div class="message other-message float-left">Hi</div>
           </li> 
           {{#each messages}}
-          <li class="clearfix" id="messageitem">
-            <div class="message-data align-right">
+          <li class="clearfix messageitem">
+            <div class="message-data align-left">
               <span class="message-data-time" >{{this.msg.time}}</span> &nbsp; &nbsp;
               <span class="message-data-name" >{{this.msg.username}}</span> <i class="fa fa-circle" style="color:{{this.msg.color}}"></i>
             </div>
-            <div class="message other-message float-right" style="background-color:{{this.msg.color}}">
+            <div class="message other-message float-left" style="background-color:{{this.msg.color}}">
               {{this.msg.msg}}
             </div>
           </li> 
@@ -56,7 +57,7 @@
         </a>
         <ul>
           <li>
-{{!--             <div class="message-data">
+  {{!--             <div class="message-data">
               <span class="message-data-name"><i class="fa fa-circle online"></i> {{user.username}}</span>
               <span class="message-data-time">10:31 AM, Today</span>
             </div> --}}
@@ -73,7 +74,7 @@
       <form action="">
         <textarea name="message-to-send" maxlength="1024" class="typing-message" id="m" name="msg" placeholder ="Type your message" rows="3" required="true"></textarea>
         <input type="hidden" name="username">
-{{!--         <i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;--}}
+  {{!--         <i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;--}}
         <i class="fa fa-file-image-o"></i>{{!-- <input type="file" id="siofu_input"/> --}}
         <div id="file_drop" dropzone="copy" title="drop files for upload">drop file here</div>
 
@@ -84,13 +85,41 @@
       </div> <!-- end chat-message -->
       
     </div> <!-- end chat -->
-    
-  </div> <!-- end container -->
+  </div>
+  <div id="tab2" class="col s12">
+    <div class="people-list" id="people-list">
+      <ul class="list" id="users-online">
+        <li class="clearfix">
+          <img src="images/vd1.png" alt="avatar" />
+          <div class="about">
+            <div class="name">{{user.username}}</div>
+            <div class="status">
+              <i class="fa fa-circle online"></i> online
+            </div>
+            <h4>Online Users</h4>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="container clearfix">
+  
+  
+  
+  
+</div> <!-- end container -->
 
 <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
 <script src="/siofu/client.js"></script>
 
 <script>
+
+$(window).load(function(){
+  $('#preloader').fadeOut('slow',function(){$(this).remove();});
+});
+
 var socket = io();
 socket.emit('login',{userId:"{{user.username}}"});
 $(function () {
@@ -108,7 +137,7 @@ $(function () {
     return false;
   });
   socket.on('new message', function(msg){
-    var itm = document.getElementById('messageitem');
+    var itm = document.getElementsByClassName('messageitem')[0];
     var cln = itm.cloneNode(true);
     var list = document.getElementById('messagelist');
     list.appendChild(cln);
@@ -180,11 +209,11 @@ socket.on('typing', function(data) {
     }
 });
 $('.chat-history').animate({scrollTop: $('.chat-history')[0].scrollHeight});
-var i=0;
-{{#each messages}}
-i++;
-{{/each}}
-document.getElementsByClassName('chat-num-messages')[0].innerHTML=i;
+// var i=0;
+// {{#each messages}}
+// i++;
+// {{/each}}
+// document.getElementsByClassName('chat-num-messages')[0].innerHTML=i;
 var uploader = new SocketIOFileUpload(socket);
 console.log(uploader);
 //uploader.listenOnInput(document.getElementById("siofu_input"));
@@ -192,5 +221,17 @@ uploader.listenOnDrop(document.getElementById("file_drop"));
 socket.on('uploaded', function(name) {
   document.getElementById('up_image').src=name;
   document.getElementById('img_href').href=name;
-})
+});
+
+var msgname = document.getElementsByClassName('message-data-name');
+for (var i = 0; i < msgname.length; i++) {
+  var name = msgname[i].innerHTML;
+  if(name=="{{user.username}}"){
+    $(".message:eq("+i+")").removeClass("float-left");
+    $(".message:eq("+i+")").addClass("float-right");
+    $(".message-data:eq("+i+")").removeClass("align-left");
+    $(".message-data:eq("+i+")").addClass("align-right");
+  }
+}
+
 </script>
