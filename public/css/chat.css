@@ -19,52 +19,13 @@
   margin-right: 0;
 }
 
-.container {
-  margin: 0 auto;
-  width: 500px;
-  background: #444753;
-  border-radius: 5px;
-}
-
-.people-list {
-  width: 260px;
-  float: left;
-}
-.people-list .search {
-  padding: 20px;
-}
-.people-list input {
-  border-radius: 3px;
-  border: none;
-  padding: 14px;
-  color: white;
-  background: #6A6C75;
-  width: 90%;
-  font-size: 14px;
-}
-.people-list .fa-search {
+.box {
+  top: 100px;
   position: relative;
-  left: -25px;
-}
-.people-list ul {
-  padding: 20px;
-  height: 250px;
-}
-.people-list ul li {
-  padding-bottom: 20px;
-}
-.people-list img {
-  float: left;
-}
-.people-list .about {
-  float: left;
-  margin-top: 8px;
-}
-.people-list .about {
-  padding-left: 8px;
-}
-.people-list .status {
-  color: #92959E;
+  width: 400px;
+  height: auto;
+  margin: 0px auto;
+  padding: 10px;
 }
 
 .chat {
@@ -209,19 +170,42 @@
   height: 0;
 }
 
-ul
-{
-  list-style-type: none;
-}
-/*
-input[type="file"] {
-  position: absolute;
-  opacity: 0;
-  width: 10px;
-}*/
 .img-chat {
   border: 1px solid #ddd;
   border-radius: 4px;
   padding: 5px;
   width: 150px;
+}
+
+.people-list ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.people-list li {
+  font: 200 20px/1.5 Helvetica, Verdana, sans-serif;
+  border-bottom: 1px solid #ccc;
+}
+
+.people-list li:last-child {
+  border: none;
+}
+
+.people-list li {
+  text-decoration: none;
+  color: #000;
+
+  -webkit-transition: font-size 0.3s ease, background-color 0.3s ease;
+  -moz-transition: font-size 0.3s ease, background-color 0.3s ease;
+  -o-transition: font-size 0.3s ease, background-color 0.3s ease;
+  -ms-transition: font-size 0.3s ease, background-color 0.3s ease;
+  transition: font-size 0.3s ease, background-color 0.3s ease;
+  display: block;
+  width: 200px;
+}
+
+.people-list li:hover {
+  font-size: 30px;
+  background: #f6f6f6;
 }
