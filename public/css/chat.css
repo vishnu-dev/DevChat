@@ -103,7 +103,8 @@
 .chat .chat-history {
   padding: 30px 30px 20px;
   border-bottom: 2px solid white;
-  overflow-y: scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
   height: 400px;
 }
 .chat .chat-history .message-data {
@@ -115,7 +116,7 @@
 }
 .chat .chat-history .message {
   color: white;
-  text-shadow: 1px 1px 2px black, 0 0 25px blue, 0 0 5px darkblue;
+  text-shadow: 1px 1px 1px black, 0 0 25px blue, 0 0 5px darkblue;
   padding: 18px 20px;
   line-height: 26px;
   font-size: 16px;
@@ -139,9 +140,11 @@
 }
 .chat .chat-message {
   padding: 30px;
+  background-color: #FCE4EC;
 }
 .chat .chat-message textarea {
-  width: 100%;
+  background-color: white;
+  width: 90%;
   border: none;
   padding: 10px 20px;
   font: 14px/22px "Lato", Arial, sans-serif;
