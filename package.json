@@ -1,5 +1,5 @@
 {
-  "name": "V-Chat",
+  "name": "DevChat",
   "version": "0.0.1",
   "engines" : { "node" : "8.1.4" },
 

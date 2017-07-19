@@ -1,6 +1,6 @@
 <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>    
 
-<div id="preloader" style="top:50%">
+<div class="centered" id="preloader" style="position:absolute">
 <center>
   <img src="images/loading.gif">
 </center>
@@ -9,8 +9,9 @@
 <div class="row" id="showdiv" style="display:none">
   <div class="col s12">
     <ul class="tabs">
-      <li class="tab col s6"><a class="active" href="#tab1">Chat</a></li>
-      <li class="tab col s6"><a href="#tab2">Online Users</a></li>
+      <li class="tab col s4"><a class="active" href="#tab1">Chat</a></li>
+      <li class="tab col s4"><a href="#tab2">Online Users</a></li>
+      <li class="tab col s4"><a href="#tab3">Profile</a></li>
     </ul>
   </div>
   <div id="tab1" class="col s12">
@@ -83,6 +84,38 @@
       <ul class="list" id="users-online">
       </ul>
     </div>
+  </div>  
+  <div id="tab3">
+    <div class="container-profile">
+      <div class="wrap-profile">
+        <h1>Change your avatar</h1>
+        <div class="profile">
+          <div class="profile__options">
+             <label for="upload" onkeydown="handleAriaUpload(event, this)" id="upload_label" title="Upload New File" tabindex="2" class="aria-upload">upload new</label>
+            <a class="last-btn btn" tabindex="2" onclick="changeAvatar('last')"
+            onkeyup="if(event.keyCode !== 13) return;changeAvatar('last');">
+              &larr;
+            </a>
+
+            <a class="next-btn btn" tabindex="3" onclick="changeAvatar('next')" onkeyup="if(event.keyCode !== 13) return;changeAvatar('next');">
+              &rarr;
+            </a>
+          </div>
+          <div class="avatar" id="avatar">
+            <div id="preview"><img src="https://source.unsplash.com/h13Y8vyIXNU/150x150" id="avatar-image" class="avatar_img" id="">
+            </div>
+            <div class="avatar_upload" >
+              <label class="upload_label">Upload
+                <input type="file" id="upload">
+              </label>
+            </div>
+          </div>
+          <div class="nickname">
+            <span id="name" tabindex="4" data-key="1" contenteditable="true" onkeyup="changeAvatarName(event, this.dataset.key, this.textContent)" onblur="changeAvatarName('blur', this.dataset.key, this.textContent)">Walrus</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>            
 </div>
 
@@ -98,9 +131,9 @@
 $(window).load(function(){
    // PAGE IS FULLY LOADED  
    // FADE OUT YOUR OVERLAYING DIV
-   $('#preloader').fadeOut();
+   $('#preloader').fadeOut(2000);
    $('#showdiv').fadeIn();
-   $('.chat-history').animate({scrollTop: $('.chat-history')[0].scrollHeight});
+   $('.chat-history').animate({scrollTop: $('.chat-history')[0].scrollHeight},0);
 });
 var socket = io();
 socket.emit('login',{userId:"{{user.username}}"});
@@ -218,4 +251,163 @@ function alignmsg() {
   }
 }
 alignmsg();
+</script>
+
+<script type="text/javascript">
+var upload = document.getElementById("upload");
+var preview = document.getElementById("preview");
+var avatar = document.getElementById("avatar");
+var avatar_name = document.getElementById("name");
+var avatar_name_change_box =
+document.getElementById("change-name-box");
+
+var avatars = {
+  srcList: [
+    {
+      name: "Cosmos",
+      src: encodeURIComponent("https://source.unsplash.com/rTZW4f02zY8/150x150")
+    },
+    {
+      name: "Walrus",
+      src: encodeURIComponent("https://source.unsplash.com/h13Y8vyIXNU/150x150")
+    },
+     {
+      name: "Flowers",
+      src: encodeURIComponent("https://source.unsplash.com/PwWkzeJeJZE/150x150")
+    },
+    {
+      name: "Dog",
+      src: encodeURIComponent("https://source.unsplash.com/oCJuJQqvCzc/150x150")
+    }
+  ],
+  activeKey: 1,
+  add: function(_name, _src){
+    this.activeKey = this.srcList.length;
+    return (this.srcList.push({name: _name, src: encodeURIComponent(_src)}) - 1);
+  },
+  changeName: function(key, _name) {
+    
+    if ( !Number.isInteger(key) ) {
+      return false;
+    }
+    this.srcList[key].name = _name;
+    if ( avatar_name.dataset.key == key)
+    {
+      avatar_name.textContent = _name;  
+    }
+    return _name;
+  },
+  showNext: function(){
+    
+    var _next = this.activeKey + 1;
+    if ( _next >= this.srcList.length ) {
+      _next = 0;
+    }
+    this.showByKey(_next);
+    
+  },
+  showLast: function(){
+    var _next = this.activeKey - 1;
+    if ( _next < 0 ) {
+      _next = this.srcList.length - 1;
+    }
+    this.showByKey(_next);
+  },
+  showByKey: function(_next) {
+    var _on = this.srcList[_next];
+    if ( !_on.name ) return;
+    
+    while(preview.firstChild) {
+      preview.removeChild(preview.firstChild);
+    }
+    
+    var img = document.createElement("img");
+    img.src = decodeURIComponent(_on.src);
+    img.className = "avatar_img--loading";
+    img.onload = function() {
+      img.classList.add("avatar_img");
+    }
+    avatar_name.textContent = _on.name;
+    avatar_name.setAttribute("data-key", _next);
+    preview.appendChild(img);
+    this.activeKey = _next;
+  }
+};
+
+function showAvatar(key) {
+  if ( !key ) {
+    key = avatars.activeKey;
+  }
+  
+}
+
+/*
+
+/** Handle uploading of files */
+upload.addEventListener("change", handleFiles, false);
+function handleFiles() {
+  var files = this.files;
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+    var imageType = /^image\//;
+    
+    if (!imageType.test(file.type)) {
+      avatar.classList.add("avatar--upload-error");
+      setTimeout(function(){
+        avatar.classList.remove("avatar--upload-error");
+      },1200);
+      continue;
+    }
+    
+    avatar.classList.remove("avatar--upload-error");
+    
+    while(preview.firstChild) {
+      preview.removeChild(preview.firstChild);
+    }
+    
+    var img = document.createElement("img");
+    img.file = file;
+    img.src = window.URL.createObjectURL(file);
+    img.onload = function() {
+      // window.URL.revokeObjectURL(this.src);
+    }
+    img.className ="avatar_img";
+    
+    /* Clear focus and any text editing mode */
+    document.activeElement.blur();
+    window.getSelection().removeAllRanges();
+    
+    var _avatarKey = avatars.add(file.name, img.src);
+    avatar_name.textContent = file.name;
+    avatar_name.setAttribute("data-key", _avatarKey);
+    preview.appendChild(img);
+  }
+}
+
+/** Inline functions */
+window.changeAvatarName = function(event, key, name) {
+  if (event.keyCode != 13 && event != 'blur') return;
+  key = parseInt(key);
+  if ( !name ) return;
+  var change = avatars.changeName(key, name);
+  document.activeElement.blur();
+  // remove selection abilities
+  window.getSelection().removeAllRanges();
+    
+};
+
+window.changeAvatar = function(dir){
+  if ( dir === 'next' ) {
+    avatars.showNext();
+  }
+  else {
+    avatars.showLast();
+  }
+};
+window.handleAriaUpload = function(e, obj) {
+  if(e.keyCode == 13) {
+    obj.click();
+  }
+};
+
 </script>
