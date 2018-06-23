@@ -1,413 +1,258 @@
-<link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>    
 
-<div class="centered" id="preloader" style="position:absolute">
-<center>
-  <img src="images/loading.gif">
-</center>
-</div>
-
-<div class="row" id="showdiv" style="display:none">
-  <div class="col s12">
-    <ul class="tabs">
-      <li class="tab col s4"><a class="active" href="#tab1">Chat</a></li>
-      <li class="tab col s4"><a href="#tab2">Online Users</a></li>
-      <li class="tab col s4"><a href="#tab3">Profile</a></li>
-    </ul>
+{{!-- <div class="wrapper">
+</div> --}}
+<dialog class="mdl-dialog">
+  <h4 class="mdl-dialog__title">Allow data collection?</h4>
+  <div class="mdl-dialog__content">
+    <p>
+      Allowing us to collect data will let us get you the information you want faster.
+    </p>
   </div>
-  <div id="tab1" class="col s12">
-    <div class="chat">
-      {{!-- <div class="chat-header clearfix">
-        <img src="images/vd1.png" alt="avatar" />
-        
-        <div class="chat-about">
-          <div class="chat-with"> {{user.username}}</div>
-          <span>Already <span class="chat-num-messages"></span> messages</span>
+  <div class="mdl-dialog__actions">
+    <button type="button" class="mdl-button">Agree</button>
+    <button type="button" class="mdl-button close">Disagree</button>
+  </div>
+</dialog>
+<div class="mdl-grid">
+  <div class="mdl-cell mdl-cell--5-col mdl-cell--11-col-phone centered">
+    <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+      <div class="mdl-tabs__tab-bar">
+          <a href="#chat" class="mdl-tabs__tab is-active">Chat</a>
+          <a href="#online" class="mdl-tabs__tab">Online</a>
+          <a href="#profile" class="mdl-tabs__tab">Profile</a>
+      </div>
+
+      <div class="mdl-tabs__panel is-active" id="chat">
+        <div id="content" class="">
         </div>
-        <a href="/logout"><button class="exit-btn">Logout</button></a>
-      </div> --}}
-      
-      <div class="chat-history">
-        <ul id="messagelist">
-          <li class="clearfix messageitem">
-            <div class="message-data align-left">
-              <span class="message-data-time" ></span> &nbsp; &nbsp;
-              <span class="message-data-name" >Vishnudev</span> <i class="fa fa-circle my"></i>
+        <div id="send-msg" class="mdl-color--blue">
+          <div class="mdl-grid">
+              <input class="mdl-textfield__input" onkeypress="javascript: if (event.keyCode === 13) sendMessage();" maxlength="50" placeholder="Say hello!" type="text" id="chat-msg"></input>
+              <button onclick="sendMessage();" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                Send
+              </button>
+              <div id="img-upload" class="mdl-color--yellow">
+                <input type="file" id="siofu_input" class="hide"/>
+                <label class="label" for="siofu_input"><i class="material-icons">cloud_upload</i></label>
+              </div>
+              <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+            <div class="mdl-cell">
             </div>
-            <div class="message other-message float-left">Hi</div>
-          </li> 
-          {{#each messages}}
-          <li class="clearfix messageitem">
-            <div class="message-data align-left">
-              <span class="message-data-time" >{{this.msg.time}}</span> &nbsp; &nbsp;
-              <span class="message-data-name" >{{this.msg.username}}</span> <i class="fa fa-circle" style="color:{{this.msg.color}}"></i>
+            <div class="mdl-cell mdl-cell--3-col-desktop mdl-cell--5-col-phone">
             </div>
-            <div class="message other-message float-left" style="background-color:{{this.msg.color}}">
-              {{this.msg.msg}}
-            </div>
-          </li> 
-          {{/each}}       
-        </ul>
-        <span><a target="_blank" id="img_href">
-          <img class="img-chat" id="up_image">
-        </a></span>
-        <span style="float:right"><a href="/logout" class="btn-floating btn-small waves-effect waves-light red"><i class="fa fa-sign-out" aria-hidden="true"></i>
-      </a></span>
-        <ul>
-          <li>
-  {{!--             <div class="message-data">
-              <span class="message-data-name"><i class="fa fa-circle online"></i> {{user.username}}</span>
-              <span class="message-data-time">10:31 AM, Today</span>
-            </div> --}}
-            <div id="typing_anim" style="display:none">
-              <i class="fa fa-circle online"></i>
-              <i class="fa fa-circle online" style="color: #AED2A6"></i>
-              <i class="fa fa-circle online" style="color:#DAE9DA"></i><span id="typing-user"></span><span>Typing....</span>
-            </div>
-          </li>
-        </ul>
-        
-      </div> <!-- end chat-history -->
-      <div class="chat-message clearfix">
-      <form action="">
-        <textarea name="message-to-send" maxlength="1024" class="typing-message" id="m" name="msg" placeholder ="Type your message" rows="3" required="true"></textarea><span><button id="mybtn">Send</button></span><br>
-  {{!--         <i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;--}}
-        <i class="fa fa-file-image-o"></i>{{!-- <input type="file" id="siofu_input"/> --}}
-        <div id="file_drop" dropzone="copy" title="drop files for upload">drop file here</div>
-      </form>
-      
-      </div> <!-- end chat-message -->
-      
-    </div> <!-- end chat -->
-  </div>
-  <div id="tab2" class="box">
-    <div class="people-list" id="people-list">
-      <ul class="list" id="users-online">
-      </ul>
-    </div>
-  </div>  
-  <div id="tab3">
-    <div class="container-profile">
-      <div class="wrap-profile">
-        <h1>Change your avatar</h1>
-        <div class="profile">
-          <div class="profile__options">
-             <label for="upload" onkeydown="handleAriaUpload(event, this)" id="upload_label" title="Upload New File" tabindex="2" class="aria-upload">upload new</label>
-            <a class="last-btn btn" tabindex="2" onclick="changeAvatar('last')"
-            onkeyup="if(event.keyCode !== 13) return;changeAvatar('last');">
-              &larr;
-            </a>
+          </div>
+        </div>
+        <div aria-live="assertive" aria-atomic="true" aria-relevant="text" class="mdl-snackbar mdl-js-snackbar">
+            <div class="mdl-snackbar__text"></div>
+            <button type="button" class="mdl-snackbar__action"></button>
+        </div>
+      </div>
 
-            <a class="next-btn btn" tabindex="3" onclick="changeAvatar('next')" onkeyup="if(event.keyCode !== 13) return;changeAvatar('next');">
-              &rarr;
-            </a>
-          </div>
-          <div class="avatar" id="avatar">
-            <div id="preview"><img src="https://source.unsplash.com/h13Y8vyIXNU/150x150" id="avatar-image" class="avatar_img" id="">
+      <div class="mdl-tabs__panel" id="online">
+        <div class="demo-list-action mdl-list" id="user-list">
+        </div>
+      </div>
+
+      <div class="mdl-tabs__panel" id="profile">
+        <div class="mdl-grid profile">
+          <div class="back"></div>
+          <!-- Square card -->
+          <style>
+          .demo-card-square.mdl-card {
+            width: 320px;
+            height: 320px;
+          }
+          .demo-card-square > .mdl-card__title {
+            color: #fff;
+            background:
+              url('../assets/demos/dog.png') bottom right 15% no-repeat #46B6AC;
+          }
+          </style>
+
+          <div class="demo-card-square mdl-card mdl-shadow--2dp">
+            <div class="mdl-card__title mdl-card--expand">
+              <h2 class="mdl-card__title-text">Update</h2>
             </div>
-            <div class="avatar_upload" >
-              <label class="upload_label">Upload
-                <input type="file" id="upload">
-              </label>
+            <div class="mdl-card__supporting-text">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              Aenan convallis.
             </div>
-          </div>
-          <div class="nickname">
-            <span id="name" tabindex="4" data-key="1" contenteditable="true" onkeyup="changeAvatarName(event, this.dataset.key, this.textContent)" onblur="changeAvatarName('blur', this.dataset.key, this.textContent)">Walrus</span>
+            <div class="mdl-card__actions mdl-card--border">
+              <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+                View Updates
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>            
+  </div>
 </div>
 
-<script src="js/socket.js"></script>
-<script src="/siofu/client.js"></script>
-
 <script>
+  var msgCounter = 0, imgCounter = 0;
 
-// $(window).load(function(){
-//   $('#showdiv').show();
-//   $('#preloader').fadeOut('slow',function(){$(this).remove();});
-// });
-$(window).load(function(){
-   // PAGE IS FULLY LOADED  
-   // FADE OUT YOUR OVERLAYING DIV
-   $('#preloader').fadeOut(2000);
-   $('#showdiv').fadeIn();
-   $('.chat-history').animate({scrollTop: $('.chat-history')[0].scrollHeight},0);
-});
-var socket = io();
-socket.emit('login',{userId:"{{user.username}}"});
-$(function () {
-  $('#mybtn').click(function(){ 
-    var d = new Date();
-    d = d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true});
-    var username = "{{user.username}}";
-    var color = "{{user.color}}";
-    socket.emit('chat message', {msg:$('#m').val(),time:d,username:username,color:color});
-    $('#m').val('');
-    // var num = document.getElementsByClassName("chat-num-messages")[0];
-    // var oldnum = num.innerHTML;
-    // var newnum = parseInt(oldnum)+1;
-    // num.innerHTML=newnum;
-    return false;
-  });
-  socket.on('new message', function(msg){
-    var itm = document.getElementsByClassName('messageitem')[0];
-    var cln = itm.cloneNode(true);
-    var list = document.getElementById('messagelist');
-    list.appendChild(cln);
-    var message = document.getElementsByClassName('other-message');
-    message[message.length-1].innerHTML=msg.msg;
-    message[message.length-1].style.backgroundColor=msg.color;
-    var my = document.getElementsByClassName('my');
-    my[my.length-1].style.color=msg.color;      
-    var arrow = document.getElementsByClassName('my');
-    arrow[arrow.length-1].style.color=msg.color;
-    var time = document.getElementsByClassName('message-data-time');
-    time[time.length-1].innerHTML=msg.time;
-    var username = document.getElementsByClassName('message-data-name');
-    username[username.length-1].innerHTML=msg.username;
-    alignmsg();
-    $('.chat-history').animate({scrollTop: $('.chat-history')[0].scrollHeight});
-  });
+  function scrollToBottom() {
+    var objDiv = document.getElementById("content");
+    objDiv.scrollTop = objDiv.scrollHeight;
+  }
 
-  socket.on('online users', function (users) {
-    var ul = document.getElementById("users-online");
-    for (var i = 0; i < users.length; i++) {
-        var li = document.createElement("li");  
-        li.setAttribute("id",users[i].socket);    
-        li.setAttribute("class","users");
-        li.appendChild(document.createTextNode(users[i].username));
-        ul.appendChild(li);  
-    }
-    var seen = {};
-    $('#users-online li').each(function() {
-        var txt = $(this).text();
-        if (seen[txt])
-            $(this).remove();
+  window.onload=function () {
+    scrollToBottom();
+  }
+
+  function generateMsgChip(username, text, time, direction, color) {
+    msgCounter++;
+    var element = `<div class="mdl-grid msg">${direction?`<div class="mdl-layout-spacer"></div>`:``}
+        <span class="mdl-chip mdl-chip--contact">
+          <span class="mdl-chip__contact mdl-color-text--white" id="${username+msgCounter}" style="background-color:${color}">${username[0].toUpperCase()}</span>
+          <div class="mdl-tooltip" data-mdl-for="${username+msgCounter}">
+            ${username}
+          </div>
+          <span class="mdl-chip__text">${text}</span>
+          <span class="mdl-chip__action">
+            <span class="time">${time}</span>
+          </span>
+        </span>
+      </div>`;
+    return element;
+  }
+
+  function generateImageMsg(username, img, time, direction) {
+    msgCounter++;
+    imgCounter++;
+    var element = `<div class="mdl-grid msg">${direction?`<div class="mdl-layout-spacer"></div>`:``}
+                    <div class="demo-card-image mdl-card mdl-shadow--2dp" id="${imgCounter}" style="background-image:url('data:image/png;base64,${img}');background-size:cover">
+                      <div class="mdl-card__title mdl-card--expand"></div>
+                      <div class="mdl-card__actions">
+                        <span class="demo-card-image__filename">${username} - ${time}</span>
+                        <!-- Right aligned menu below button -->
+                        <button id="${username+msgCounter}"
+                                class="mdl-button mdl-js-button mdl-button--icon">
+                          <i class="material-icons">more_vert</i>
+                        </button>
+
+                        <ul class="mdl-menu mdl-menu--top-left mdl-js-menu mdl-js-ripple-effect"
+                            for="${username+msgCounter}">
+                          <a href="data:image/png;base64,${img}" download="${msgCounter}.jpg"><li class="mdl-menu__item">Download</li></a>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>`;
+    return element;
+  }
+
+  var content = document.getElementById('content');
+  var cur_user = "{{user}}";
+  var ui_color = "{{color}}";
+  {{#each messages}}      
+      if(cur_user == "{{this.msg.username}}"){
+        if("{{this.msg.type}}" == "image")
+          content.innerHTML += generateImageMsg("{{this.msg.username}}", "{{this.msg.msg}}", "{{this.msg.time}}", 1);
         else
-            seen[txt] = true;
-        //return false;
-    }
-    );
-  });
-
-  socket.on('user disconnected',function(user) {
-    console.log(user);
-    function removeElement(element) {
-        element && element.parentNode && element.parentNode.removeChild(element);
-    }
-    removeElement( document.getElementById(user) );
-  });
-});
-var timeout;
-
-function timeoutFunction() {
-    typing = false;
-    socket.emit("typing", false);
-}
-
-$('.typing-message').keyup(function() {
-    typing = true;
-    socket.emit('typing',{user:"{{user.username}}"});
-    clearTimeout(timeout);
-    timeout = setTimeout(timeoutFunction, 1000);
-});
-
-socket.on('typing', function(data) {
-  var typing_anim = document.getElementById('typing_anim');
-  var typing_user = document.getElementById('typing-user');
-    if (data) {
-        typing_anim.style.display="block";
-        typing_user.innerHTML=" "+data.user+" ";
-    } else {
-        typing_anim.style.display="none";
-    }
-});
-// var i=0;
-// {{#each messages}}
-// i++;
-// {{/each}}
-// document.getElementsByClassName('chat-num-messages')[0].innerHTML=i;
-var uploader = new SocketIOFileUpload(socket);
-console.log(uploader);
-//uploader.listenOnInput(document.getElementById("siofu_input"));
-uploader.listenOnDrop(document.getElementById("file_drop"));
-socket.on('uploaded', function(name) {
-  document.getElementById('up_image').src=name;
-  document.getElementById('img_href').href=name;
-});
-
-function alignmsg() {
-  var msgname = document.getElementsByClassName('message-data-name');
-  for (var i = 0; i < msgname.length; i++) {
-    var name = msgname[i].innerHTML;
-    if(name=="{{user.username}}"){
-      $(".message:eq("+i+")").removeClass("float-left");
-      $(".message:eq("+i+")").addClass("float-right");
-      $(".message-data:eq("+i+")").removeClass("align-left");
-      $(".message-data:eq("+i+")").addClass("align-right");
-    }
-  }
-}
-alignmsg();
+          content.innerHTML += generateMsgChip("{{this.msg.username}}", "{{this.msg.msg}}", "{{this.msg.time}}", 1, "{{#if this.msg.color}}{{this.msg.color}}{{else}}#2196f3{{/if}}");
+      }
+      else{
+        if("{{this.msg.type}}" == "image")
+          content.innerHTML += generateImageMsg("{{this.msg.username}}", "{{this.msg.msg}}", "{{this.msg.time}}", 0);
+        else
+          content.innerHTML += generateMsgChip("{{this.msg.username}}", "{{this.msg.msg}}", "{{this.msg.time}}", 0, "{{#if this.msg.color}}{{this.msg.color}}{{else}}#2196f3{{/if}}");
+      }
+  {{/each}}
 </script>
-
-<script type="text/javascript">
-var upload = document.getElementById("upload");
-var preview = document.getElementById("preview");
-var avatar = document.getElementById("avatar");
-var avatar_name = document.getElementById("name");
-var avatar_name_change_box =
-document.getElementById("change-name-box");
-
-var avatars = {
-  srcList: [
-    {
-      name: "Cosmos",
-      src: encodeURIComponent("https://source.unsplash.com/rTZW4f02zY8/150x150")
-    },
-    {
-      name: "Walrus",
-      src: encodeURIComponent("https://source.unsplash.com/h13Y8vyIXNU/150x150")
-    },
-     {
-      name: "Flowers",
-      src: encodeURIComponent("https://source.unsplash.com/PwWkzeJeJZE/150x150")
-    },
-    {
-      name: "Dog",
-      src: encodeURIComponent("https://source.unsplash.com/oCJuJQqvCzc/150x150")
-    }
-  ],
-  activeKey: 1,
-  add: function(_name, _src){
-    this.activeKey = this.srcList.length;
-    return (this.srcList.push({name: _name, src: encodeURIComponent(_src)}) - 1);
-  },
-  changeName: function(key, _name) {
-    
-    if ( !Number.isInteger(key) ) {
-      return false;
-    }
-    this.srcList[key].name = _name;
-    if ( avatar_name.dataset.key == key)
-    {
-      avatar_name.textContent = _name;  
-    }
-    return _name;
-  },
-  showNext: function(){
-    
-    var _next = this.activeKey + 1;
-    if ( _next >= this.srcList.length ) {
-      _next = 0;
-    }
-    this.showByKey(_next);
-    
-  },
-  showLast: function(){
-    var _next = this.activeKey - 1;
-    if ( _next < 0 ) {
-      _next = this.srcList.length - 1;
-    }
-    this.showByKey(_next);
-  },
-  showByKey: function(_next) {
-    var _on = this.srcList[_next];
-    if ( !_on.name ) return;
-    
-    while(preview.firstChild) {
-      preview.removeChild(preview.firstChild);
-    }
-    
-    var img = document.createElement("img");
-    img.src = decodeURIComponent(_on.src);
-    img.className = "avatar_img--loading";
-    img.onload = function() {
-      img.classList.add("avatar_img");
-    }
-    avatar_name.textContent = _on.name;
-    avatar_name.setAttribute("data-key", _next);
-    preview.appendChild(img);
-    this.activeKey = _next;
-  }
-};
-
-function showAvatar(key) {
-  if ( !key ) {
-    key = avatars.activeKey;
+<script>
+  function getCurrentTime() {
+    var date = new Date();
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? '0'+minutes : minutes;
+    var strTime = hours + ':' + minutes + ' ' + ampm;
+    return strTime;
   }
   
-}
+  function generateMessage(message, type) {
+    return {
+      "msg": message,
+      "type": type||"text",
+      "time": getCurrentTime(),
+      "username": cur_user,
+      "color": ui_color
+    };
+  }
 
-/*
+  var io = new io();
 
-/** Handle uploading of files */
-upload.addEventListener("change", handleFiles, false);
-function handleFiles() {
-  var files = this.files;
-  for (var i = 0; i < files.length; i++) {
-    var file = files[i];
-    var imageType = /^image\//;
-    
-    if (!imageType.test(file.type)) {
-      avatar.classList.add("avatar--upload-error");
-      setTimeout(function(){
-        avatar.classList.remove("avatar--upload-error");
-      },1200);
-      continue;
+  io.emit('login', "{{user}}");
+
+  var uploader = new SocketIOFileUpload(io);
+  uploader.maxFileSize = 1024 * 1000;
+  uploader.listenOnInput(document.getElementById("siofu_input"));
+
+  uploader.addEventListener("progress", function(event){
+      var percent = event.bytesLoaded / event.file.size * 100;
+      document.getElementById("p2").style.display = "block";
+      console.log("File is", percent.toFixed(0), "percent loaded");
+  });
+
+  uploader.addEventListener("error", function(data){
+      if (data.code === 1) {
+        var notification = document.querySelector('.mdl-js-snackbar');
+        notification.MaterialSnackbar.showSnackbar(
+          {
+            message: "Don't upload large files"
+          }
+        );
+      }
+  });
+
+  io.on('uploaded', (image) => {
+    document.getElementById("p2").style.display = "none";
+    console.log("Uploaded by : "+cur_user);
+    io.emit('chat message', generateMessage(image, "image"));
+  });
+
+  function sendMessage() {
+    console.log("[TO_SERVER]",generateMessage(document.getElementById('chat-msg').value));
+    io.emit('chat message', generateMessage(document.getElementById('chat-msg').value));
+    document.getElementById('chat-msg').value="";
+  }
+  io.on('new message', (msgObj) => {
+    var content = document.getElementById('content');
+    if(cur_user == msgObj.username){
+      console.log("[MSG]",cur_user);
+      if(msgObj.type == "image")
+        content.innerHTML += generateImageMsg(msgObj.username, msgObj.msg, msgObj.time, 1);
+      else
+        content.innerHTML += generateMsgChip(msgObj.username, msgObj.msg, msgObj.time, 1, msgObj.color);
     }
-    
-    avatar.classList.remove("avatar--upload-error");
-    
-    while(preview.firstChild) {
-      preview.removeChild(preview.firstChild);
+    else{
+      console.log("[MSG]",cur_user);      
+      if(msgObj.type == "image")
+        content.innerHTML += generateImageMsg(msgObj.username, msgObj.msg, msgObj.time, 0);
+      else
+        content.innerHTML += generateMsgChip(msgObj.username, msgObj.msg, msgObj.time, 0, msgObj.color);
     }
-    
-    var img = document.createElement("img");
-    img.file = file;
-    img.src = window.URL.createObjectURL(file);
-    img.onload = function() {
-      // window.URL.revokeObjectURL(this.src);
+    scrollToBottom();
+  });
+
+  var userList = document.getElementById('user-list'); 
+  var userListArr = [];
+  io.on('online users', (users) => {
+    console.log(users)
+    for(var i=0; i<users.length; i++){
+      if(!userListArr.includes(users[i])){
+        userListArr.push(users[i]);
+        userList.innerHTML += `<div class="mdl-list__item">
+              <span class="mdl-list__item-primary-content">
+                <i class="material-icons mdl-list__item-avatar">person</i>
+                <span>${users[i]}</span>
+              </span>
+              <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">star</i></a>
+            </div>`;
+      }
     }
-    img.className ="avatar_img";
-    
-    /* Clear focus and any text editing mode */
-    document.activeElement.blur();
-    window.getSelection().removeAllRanges();
-    
-    var _avatarKey = avatars.add(file.name, img.src);
-    avatar_name.textContent = file.name;
-    avatar_name.setAttribute("data-key", _avatarKey);
-    preview.appendChild(img);
-  }
-}
-
-/** Inline functions */
-window.changeAvatarName = function(event, key, name) {
-  if (event.keyCode != 13 && event != 'blur') return;
-  key = parseInt(key);
-  if ( !name ) return;
-  var change = avatars.changeName(key, name);
-  document.activeElement.blur();
-  // remove selection abilities
-  window.getSelection().removeAllRanges();
-    
-};
-
-window.changeAvatar = function(dir){
-  if ( dir === 'next' ) {
-    avatars.showNext();
-  }
-  else {
-    avatars.showLast();
-  }
-};
-window.handleAriaUpload = function(e, obj) {
-  if(e.keyCode == 13) {
-    obj.click();
-  }
-};
-
+  });
 </script>

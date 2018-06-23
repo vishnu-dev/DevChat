@@ -9,13 +9,27 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var User = require('./models/user');
 var siofu = require("socketio-file-upload");
+var randomMC = require('random-material-color');
 
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
 
+// function to encode file data to base64 encoded string
+function base64_encode(file) {
+    // read binary data
+    var bitmap = fs.readFileSync(file);
+    // convert binary data to base64 encoded string
+    return new Buffer(bitmap).toString('base64');
+}
+
 //Handlebars init
-app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.engine('handlebars', exphbs({
+	helpers: {
+		equal: function (a, b, options) { return (a == b) ? options.fn(this) : options.inverse(this); }
+	},
+	defaultLayout: 'main'
+}));
 app.set('view engine', 'handlebars');
 
 // Body-parser init
@@ -27,7 +41,7 @@ app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/uploads'));
 
 // MongoDB Database init
-mongoose.connect('mongodb://139.59.74.8:27017/chat-app',{useMongoClient: true});
+mongoose.connect('mongodb://localhost:27017/chat-app');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
@@ -47,6 +61,7 @@ app.use(passport.session());
 
 // File uploader init
 app.use(siofu.router);
+
 
 passport.use(new LocalStrategy(
   function(username, password, done) {
@@ -88,7 +103,7 @@ app.get('/register', function(req, res){
 app.post('/register',function(req,res) {
 	var username = req.body.username;
 	var password = req.body.password;
-	var color = '#' + parseInt(Math.random() * 0xffffff).toString(16);
+	var color = randomMC.getColor();
 	var newUser = new User({
 		username: username,
 		password: password,
@@ -115,26 +130,8 @@ function(req, res) {
 var users = [],x=0;
 io.on('connection', function(socket){
 	socket.on('login', function(data){
-	    console.log('a user ' + data.userId + ' connected');
-	    var found = false;
-	    for(var i = 0; i < users.length; i++) {
-		    if (users[i].username == data.userId) {
-		        found = true;
-		        break;
-		    }
-		}
-	    if(data.userId){
-	    	if(!found)
-				users.push({socket:socket.id,username:data.userId});
-			else{
-				for(var i = 0; i < users.length; i++) {
-				    if (users[i].username == data.userId) {
-				        users[i].socket = socket.id;
-				    }
-				}
-	    	}
-			
-		}
+		if(!users.includes(data))
+			users.push(data);
 		io.emit('online users', users);
 	});
 	socket.on('disconnect', function(){
@@ -151,13 +148,14 @@ io.on('connection', function(socket){
 			});
 			message.save();
 		})
-	io.emit('new message', msg);
+		io.sockets.emit('new message', msg);
 	});
 	var uploader = new siofu();
     uploader.dir = __dirname + "/uploads";
     uploader.listen(socket);
 
     uploader.on("start", function(event){
+		console.log("Upload start");
 		if (/\.exe$/.test(event.file.name)) {
 			console.log("Aborting: " + event.file.id);
 			uploader.abort(event.file.id, socket);
@@ -166,7 +164,8 @@ io.on('connection', function(socket){
 
     // Do something when a file is saved:
     uploader.on("saved", function(event){
-        io.emit('uploaded',event.file.name);
+		var base64str = base64_encode(__dirname + "/uploads/" + event.file.name);
+        socket.emit('uploaded',base64str);
     });
 
     // Error handler:
@@ -175,9 +174,9 @@ io.on('connection', function(socket){
     });
 });
 
-app.get('/chat', redirectToChatIfLoggedIn,function(req,res) {
+app.get('/chat', redirectToChatIfLoggedIn, function(req,res) {
 	Msg.find({},function(err,document) {
-		res.render('chat',{messages:document,user:req.user});
+		res.render('chat',{messages:document,user:req.user.username,color:req.user.color});
 	})
 });
 
