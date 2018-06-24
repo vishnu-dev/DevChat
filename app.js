@@ -13,7 +13,7 @@ var randomMC = require('random-material-color');
 
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var port = process.env.PORT || 3000;
+var port = 8080;
 
 // function to encode file data to base64 encoded string
 function base64_encode(file) {
